@@ -1,0 +1,26 @@
+<div class="page">
+  <p-card class="profiles-card">
+    @if (settings) {
+      <div class="field">
+        <label class="field-label" for="sched-startup">{{ i18n.t('settings.schedulerStartupLabel') }}</label>
+        <p-select
+          inputId="sched-startup"
+          class="w-full control"
+          [options]="schedulerStartupOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="settings.schedulerStartupPreference"
+        ></p-select>
+      </div>
+      <p-button
+        type="button"
+        [label]="i18n.t('settings.save')"
+        [loading]="saving"
+        [disabled]="saving"
+        (onClick)="save()"
+      ></p-button>
+    } @else {
+      <p>{{ i18n.t('profiles.loading') }}</p>
+    }
+  </p-card>
+</div>

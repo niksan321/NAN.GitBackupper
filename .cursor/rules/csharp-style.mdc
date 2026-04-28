@@ -1,0 +1,125 @@
+---
+description: Соглашения по стилю C# (имена, var, primary constructor без пустых (), if без {}, коллекции [], короткое тело if в одну строку, без пустых строк в конце .cs)
+alwaysApply: true
+---
+
+# Стиль C#
+
+## Имена переменных и полей
+
+- **Не** начинайте имена локальных переменных, полей и параметров с символа подчёркивания `_`. Используйте осмысленные имена в `camelCase` для локальных переменных и параметров, `PascalCase` для публичных членов, обычные соглашения C# для `private` полей без префикса `_` (например `logger`, `options`).
+
+```csharp
+// ❌ избегать
+var _count = 0;
+private readonly ILogger _logger;
+
+// ✅ предпочтительно
+var count = 0;
+private readonly ILogger logger;
+```
+
+## Параметр `CancellationToken`
+
+- Для параметра типа `CancellationToken` используйте имя **`ct`**, не `cancellationToken`.
+
+```csharp
+// ❌ избегать
+Task RunAsync(CancellationToken cancellationToken = default);
+
+// ✅ предпочтительно
+Task RunAsync(CancellationToken ct = default);
+```
+
+## Явный тип и `var`
+
+- **По возможности** используйте `var`, когда тип очевиден из правой части присваивания или из литерала.
+
+```csharp
+var path = Path.Combine(root, "config.json");
+var items = new List<string>();
+// Явный тип уместен, если без него теряется ясность:
+int? id = TryParseId(text);
+```
+
+## Primary constructor
+
+- **По возможности** используйте [primary constructor](https://learn.microsoft.com/dotnet/csharp/programming-guide/classes-and-structs/instance-constructors#primary-constructors) для классов и структур, когда параметры конструктора напрямую задают состояние объекта и это упрощает код по сравнению с классическим конструктором и полями.
+
+```csharp
+// ✅ когда уместно
+public sealed class GitSyncService(ILogger<GitSyncService> logger, IOptions<AppSettings> options)
+{
+    public void Run() => /* использование logger, options */;
+}
+```
+
+Учитывайте ограничения: не все паттерны (например сложная инициализация в теле конструктора) хорошо ложатся на primary constructor — в таких случаях оставляйте обычный конструктор.
+
+- **Не** объявляйте **пустой** primary constructor (`()` без параметров). Это не даёт выгоды и засоряет объявление типа. Пишите обычное объявление класса без скобок.
+
+```csharp
+// ❌ избегать
+public sealed class BitbucketProviderClient() : IGitProviderClient
+
+// ✅ предпочтительно
+public sealed class BitbucketProviderClient : IGitProviderClient
+```
+
+Primary constructor оставляйте только когда в скобках есть **хотя бы один** параметр, который реально используется как состояние или зависимость.
+
+## `if` / `else` без фигурных скобок
+
+- Если в ветке **ровно один** оператор, **не** оборачивайте его в `{ }`.
+- **Короткое** тело (`break`, `continue`, краткий `return` и т.п.) держите **на той же строке**, что и `if`.
+
+```csharp
+// ❌ избегать
+if (!doc.RootElement.TryGetProperty("values", out var values))
+    break;
+
+// ✅ предпочтительно
+if (!doc.RootElement.TryGetProperty("values", out var values)) break;
+```
+
+- Тело покрупнее (вызов метода, присваивание с длинной правой частью) — с **новой строки** с отступом после `if` / `else`.
+
+```csharp
+// ❌ избегать — лишние { }
+if (settings.AutoStartPing)
+{
+    trayService.SetDefaultIcon();
+}
+
+// ✅ предпочтительно
+if (settings.AutoStartPing)
+    trayService.SetDefaultIcon();
+else
+    trayService.SetDisabledIcon();
+```
+
+- Скобки **нужны**, если в ветке несколько операторов, есть вложенный многострочный блок или без скобок теряется ясность (например смешение `if`/`else if` с разной глубиной).
+
+## Инициализация коллекций (`[]`)
+
+- **По возможности** используйте [выражения коллекций](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/collection-expressions) C# 12: литерал **`[]`** и **`[ … ]`** вместо `new List<T>()`, `Array.Empty<T>()`, `new T[] { }` / `new[] { }`, когда целевой тип ясен и не нужен конструктор с особыми параметрами.
+
+```csharp
+// ❌ избегать (если замена очевидна)
+var items = new List<string>();
+var names = new[] { "a", "b" };
+
+// ✅ предпочтительно
+List<string> items = [];
+string[] names = ["a", "b"];
+```
+
+- Если нужны **начальная ёмкость**, **фабрика** или тип вроде `ImmutableArray<T>` / `HashSet<T>` с нестандартным сравниванием — оставляйте подходящий конструктор или API.
+
+## Конец файла (`.cs`)
+
+- В **файлах с объявлениями типов** (`.cs`: классы, записи, интерфейсы, структуры, перечисления и т.д.) **не оставляйте пустых строк после последней значимой строки**. Обычно файл заканчивается закрывающей `}` последнего типа или namespace и **одним** завершающим переводом строки — без одной или нескольких дополнительных пустых строк до EOF.
+
+## Nullable reference types
+
+- Во всех проектах решения в `.csproj` задавайте **`<Nullable>disable</Nullable>`**. Не переводите проекты на `enable` без явного указания пользователя.

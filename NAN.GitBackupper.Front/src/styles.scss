@@ -1,0 +1,20 @@
+:root {
+  --app-base-font-size: 1rem;
+}
+
+html {
+  font-size: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  font-size: var(--app-base-font-size);
+  background: var(--p-surface-ground);
+  color: var(--p-text-color);
+}

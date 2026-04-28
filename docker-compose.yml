@@ -1,0 +1,15 @@
+services:
+  gitbackupper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      GitBackupper__SettingsFileName: data/settings.json
+    volumes:
+      - gitbackupper-data:/app/data
+
+volumes:
+  gitbackupper-data:

@@ -1,0 +1,113 @@
+<div class="page">
+  <p-card class="profiles-card">
+    <div class="backups-top-row">
+      <div class="backups-filter field">
+        <span>{{ i18n.t('backups.filterProfile') }}</span>
+        <p-select
+          [options]="profileOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedProfileId"
+          (ngModelChange)="onProfileChange($event)"
+          [placeholder]="i18n.t('backups.placeholderProfile')"
+          [disabled]="!hasProfiles()"
+          class="w-full"
+        ></p-select>
+      </div>
+      @if (hasProfiles() && selectedProfileId && selectedProfile()) {
+        <p class="backups-retention-info" [attr.title]="retentionSummaryText()">
+          {{ retentionSummaryText() }}
+        </p>
+      }
+    </div>
+
+    @if (hasProfiles() && selectedProfileId) {
+      @if (archivesLoading) {
+        <p class="backups-hint">{{ i18n.t('backups.loading') }}</p>
+      } @else {
+        <p-table
+          [value]="archives"
+          [tableStyle]="{ width: '100%' }"
+          styleClass="backups-table"
+          [customSort]="true"
+          [sortField]="archivesSortField ?? undefined"
+          [sortOrder]="archivesSortField ? archivesSortOrder : 0"
+          [(first)]="archivesTableFirst"
+          [resetPageOnSort]="true"
+          (onSort)="onArchivesSort($event)"
+          [paginator]="true"
+          [rows]="20"
+          [rowsPerPageOptions]="[20, 50, 100]"
+          [showCurrentPageReport]="true"
+          [currentPageReportTemplate]="i18n.t('table.pageReport')"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="modifiedUtc" class="backups-col-date">
+                {{ i18n.t('backups.colDate') }}
+                @if (archivesSortField === 'modifiedUtc') {
+                  <p-sortIcon field="modifiedUtc" />
+                }
+              </th>
+              <th pSortableColumn="fileName" class="backups-col-name-header">
+                {{ i18n.t('backups.colFileName') }}
+                @if (archivesSortField === 'fileName') {
+                  <p-sortIcon field="fileName" />
+                }
+              </th>
+              <th pSortableColumn="durationMs" class="backups-col-duration profile-col-numeric">
+                {{ i18n.t('backups.colDuration') }}
+                @if (archivesSortField === 'durationMs') {
+                  <p-sortIcon field="durationMs" />
+                }
+              </th>
+              <th pSortableColumn="sizeBytes" class="backups-col-size profile-col-numeric">
+                {{ i18n.t('backups.colSize') }}
+                @if (archivesSortField === 'sizeBytes') {
+                  <p-sortIcon field="sizeBytes" />
+                }
+              </th>
+              <th class="profile-col-actions"></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row>
+            <tr class="profile-row">
+              <td class="backups-col-date">{{ formatArchiveDate(row.modifiedUtc) }}</td>
+              <td class="backups-col-name" [attr.title]="row.fileName">{{ row.fileName }}</td>
+              <td class="profile-col-numeric backups-col-duration">{{ formatDurationMs(row.durationMs) }}</td>
+              <td class="profile-col-numeric backups-col-size">{{ formatSize(row.sizeBytes) }}</td>
+              <td class="actions profile-col-actions">
+                <div class="profile-row-actions-inner">
+                  <p-button
+                    type="button"
+                    icon="pi pi-download"
+                    severity="secondary"
+                    size="small"
+                    [text]="true"
+                    [rounded]="true"
+                    [loading]="downloadingFileName === row.fileName"
+                    [disabled]="!!downloadingFileName && downloadingFileName !== row.fileName"
+                    [pTooltip]="i18n.t('backups.download')"
+                    tooltipPosition="bottom"
+                    appendTo="body"
+                    (onClick)="download(row)"
+                    [attr.aria-label]="i18n.t('backups.downloadAria')"
+                  ></p-button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="backups-empty">{{ i18n.t('backups.emptyNoFiles') }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+    } @else if (hasProfiles() && !selectedProfileId) {
+      <p class="backups-hint">{{ i18n.t('backups.hintSelectProfile') }}</p>
+    } @else {
+      <p class="backups-hint">{{ i18n.t('backups.emptyNoProfiles') }}</p>
+    }
+  </p-card>
+</div>

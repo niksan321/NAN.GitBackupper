@@ -1,0 +1,25 @@
+---
+description: EF Core — миграции SQLite в NAN.GitBackupper.Api (Designer, snapshot, проверка применения)
+alwaysApply: true
+---
+
+# EF Core: миграции (NAN.GitBackupper.Api)
+
+При добавлении или изменении сущностей в [`AppDbContext`](Src/NAN.GitBackupper.Api/Database/AppDbContext.cs) и таблиц SQLite **нельзя** оставлять миграцию «наполовину»: без Designer EF **не регистрирует** миграцию, `Up()` **не выполняется**, а модель уже ожидает колонки → `SQLite Error 1: no such column`.
+
+## Обязательно
+
+1. **Предпочтительно** генерировать миграцию tooling-ом из корня решения или папки API:
+   - `dotnet ef migrations add <Имя> --project Src/NAN.GitBackupper.Api --startup-project Src/NAN.GitBackupper.Api`
+   - Так создаются пара `*_<Имя>.cs` + `*_<Имя>.Designer.cs` и обновляется [`AppDbContextModelSnapshot.cs`](Src/NAN.GitBackupper.Api/Migrations/AppDbContextModelSnapshot.cs).
+
+2. **Если правки вручную** — всегда два файла с **одинаковым** префиксом времени и **одним** `partial class`:
+   - `YYYYMMDDhhmmss_MyChange.cs` — класс `public partial class MyChange : Migration` с `Up` / `Down`;
+   - `YYYYMMDDhhmmss_MyChange.Designer.cs` — **`[DbContext(typeof(AppDbContext))]`** и **`[Migration("YYYYMMDDhhmmss_MyChange")]`** на `partial class MyChange`, метод **`BuildTargetModel`** (целевая модель после этой миграции; для последней миграции совпадает с текущим snapshot).
+
+3. После добавления миграции убедиться, что при старте API вызывается [`Database.MigrateAsync()`](Src/NAN.GitBackupper.Api/Program.cs) и в БД появились колонки / таблицы (или прогнать `dotnet ef database update` с теми же `--project` / `--startup-project`).
+
+## Не делать
+
+- Не добавлять только `*Migration.cs` без `*.Designer.cs` с атрибутом `[Migration("...")]`.
+- Не менять модель сущности и snapshot, забыв добавить миграцию с `Up`, которая реально меняет схему SQLite.

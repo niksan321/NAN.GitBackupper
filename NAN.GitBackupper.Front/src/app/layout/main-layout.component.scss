@@ -1,0 +1,206 @@
+.layout-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 0;
+  background: var(--p-surface-ground);
+  color: var(--p-text-color);
+}
+
+:host ::ng-deep .p-confirmdialog .p-confirmdialog-icon {
+  color: var(--p-red-500, #dc2626);
+}
+
+.topbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 3.5rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--p-content-border-color, var(--p-surface-border));
+  background: var(--p-content-background);
+  z-index: 10;
+  font-size: calc(var(--app-base-font-size) + 2pt);
+}
+
+.topbar-left {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+:host ::ng-deep .topbar-scheduler-btn--stop.p-button {
+  .p-button-icon {
+    color: var(--p-red-500, #dc2626);
+  }
+
+  &:not(:disabled):hover .p-button-icon {
+    color: var(--p-red-400, #ef4444);
+  }
+}
+
+.topbar-brand-orbit {
+  position: relative;
+  display: inline-block;
+}
+
+.topbar-brand-comet-track {
+  position: absolute;
+  inset: -5px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 0;
+}
+
+.topbar-brand-orbit--active .topbar-brand-comet-track {
+  opacity: 1;
+  animation: topbarBrandCometRotate 5.5s linear infinite;
+}
+
+.topbar-brand-comet {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  margin-top: -1px;
+  border-radius: 50%;
+  background: var(--p-primary-color);
+  box-shadow:
+    0 0 3px 1px color-mix(in srgb, var(--p-primary-color) 70%, transparent),
+    0 0 7px 2px color-mix(in srgb, var(--p-primary-color) 40%, transparent);
+}
+
+.topbar-brand {
+  position: relative;
+  z-index: 1;
+  font-weight: 700;
+  font-size: 1.05em;
+  letter-spacing: 0.02em;
+}
+
+@keyframes topbarBrandCometRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.topbar-center {
+  flex: 1 1 auto;
+  text-align: center;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-right {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+:host ::ng-deep .topbar .p-button {
+  font-size: inherit;
+}
+
+.layout-body {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+}
+
+.sidebar {
+  flex: 0 0 14rem;
+  border-right: 1px solid var(--p-content-border-color, var(--p-surface-border));
+  background: var(--p-surface-50, var(--p-surface-section));
+  padding: 0.75rem 0;
+  font-size: calc(var(--app-base-font-size) + 2pt);
+  transition:
+    flex-basis 0.18s ease,
+    width 0.18s ease;
+}
+
+.sidebar.sidebar--collapsed {
+  flex-basis: 4.25rem;
+}
+
+:host-context(.dark) .sidebar {
+  background: var(--p-surface-950);
+}
+
+.side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar-toggle {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 0.5rem 0.5rem;
+}
+
+.sidebar.sidebar--collapsed .sidebar-toggle {
+  justify-content: center;
+}
+
+.side-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 1rem;
+  color: var(--p-text-color);
+  text-decoration: none;
+  border-radius: var(--p-border-radius, 6px);
+  margin: 0 0.5rem;
+}
+
+.side-nav-icon {
+  width: 1.2rem;
+  min-width: 1.2rem;
+  text-align: center;
+}
+
+.side-nav-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.side-nav a:hover {
+  background: var(--p-content-hover-background, rgba(128, 128, 128, 0.12));
+}
+
+.side-nav a.active {
+  background: var(--p-primary-color);
+  color: var(--p-primary-contrast-color);
+  font-weight: 600;
+}
+
+.sidebar.sidebar--collapsed .side-nav a {
+  justify-content: center;
+  gap: 0;
+  padding-inline: 0.5rem;
+}
+
+.main {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: auto;
+  padding: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar-brand-orbit--active .topbar-brand-comet-track {
+    animation: none;
+    opacity: 0;
+  }
+}

@@ -1,0 +1,197 @@
+<div class="page">
+  <p-card class="profiles-card">
+    <ng-template pTemplate="header">
+      <div class="profiles-card-header">
+        <p-button
+          type="button"
+          icon="pi pi-plus"
+          [rounded]="true"
+          severity="secondary"
+          [pTooltip]="i18n.t('profiles.addProfile')"
+          tooltipPosition="bottom"
+          appendTo="body"
+          [attr.aria-label]="i18n.t('profiles.addProfile')"
+          (onClick)="openAddProfile()"
+        ></p-button>
+      </div>
+    </ng-template>
+    @if (settings) {
+      <p-table
+        [value]="settings.targetItems ?? []"
+        [tableStyle]="{ width: '100%' }"
+        [customSort]="true"
+        [sortField]="profilesSortField ?? undefined"
+        [sortOrder]="profilesSortField ? profilesSortOrder : 0"
+        [(first)]="profilesTableFirst"
+        [resetPageOnSort]="true"
+        (onSort)="onTargetItemsSort($event)"
+        [paginator]="true"
+        [rows]="20"
+        [rowsPerPageOptions]="[20, 50, 100]"
+        [showCurrentPageReport]="true"
+        [currentPageReportTemplate]="i18n.t('table.pageReport')"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="name" class="profile-col-name">
+              {{ i18n.t('profiles.colName') }}
+              @if (profilesSortField === 'name') {
+                <p-sortIcon field="name" />
+              }
+            </th>
+            <th pSortableColumn="provider" class="profile-col-provider">
+              {{ i18n.t('profiles.colProvider') }}
+              @if (profilesSortField === 'provider') {
+                <p-sortIcon field="provider" />
+              }
+            </th>
+            <th pSortableColumn="backupInterval" class="profile-col-interval">
+              {{ i18n.t('profiles.colBackupInterval') }}
+              @if (profilesSortField === 'backupInterval') {
+                <p-sortIcon field="backupInterval" />
+              }
+            </th>
+            <th pSortableColumn="parallelism" class="profile-col-numeric profile-col-parallelism">
+              {{ i18n.t('profiles.colParallelism') }}
+              @if (profilesSortField === 'parallelism') {
+                <p-sortIcon field="parallelism" />
+              }
+            </th>
+            <th
+              pSortableColumn="lastBackupSizes"
+              class="profile-col-numeric profile-col-last-backup-sizes"
+              [attr.title]="i18n.t('profiles.colLastBackupSizesHint')"
+            >
+              {{ i18n.t('profiles.colLastBackupSizes') }}
+              @if (profilesSortField === 'lastBackupSizes') {
+                <p-sortIcon field="lastBackupSizes" />
+              }
+            </th>
+            <th
+              pSortableColumn="lastBackupDuration"
+              class="profile-col-numeric profile-col-duration"
+              [attr.title]="i18n.t('profiles.colBackupDurationHint')"
+            >
+              {{ i18n.t('profiles.colBackupDuration') }}
+              @if (profilesSortField === 'lastBackupDuration') {
+                <p-sortIcon field="lastBackupDuration" />
+              }
+            </th>
+            <th class="profile-col-actions"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <ng-container>
+            <tr class="profile-row" [class.profile-row--disabled]="row.enabled === false">
+              <td class="profile-col-name">{{ row.name }}</td>
+              <td class="profile-col-provider">{{ providerLabel(row.provider) }}</td>
+              <td class="profile-col-interval">{{ formatBackupInterval(row) }}</td>
+              <td class="profile-col-numeric profile-col-parallelism">{{ row.repositoryBackupParallelism ?? '—' }}</td>
+              <td class="profile-col-numeric profile-col-last-backup-sizes">
+                {{ formatLastBackupSizes(row) }}
+              </td>
+              <td class="profile-col-numeric profile-col-duration">{{ formatLastBackupDuration(row) }}</td>
+              <td class="actions profile-col-actions">
+                <div class="profile-row-actions-inner">
+                  <p-button
+                    type="button"
+                    icon="pi pi-folder-open"
+                    severity="secondary"
+                    size="small"
+                    [text]="true"
+                    [rounded]="true"
+                    [pTooltip]="i18n.t('profiles.openRepositories')"
+                    tooltipPosition="bottom"
+                    appendTo="body"
+                    (onClick)="openRepositories(row)"
+                    [attr.aria-label]="i18n.t('profiles.openRepositoriesAria')"
+                  ></p-button>
+                  <p-button
+                    type="button"
+                    icon="pi pi-pencil"
+                    severity="secondary"
+                    size="small"
+                    [text]="true"
+                    [rounded]="true"
+                    [pTooltip]="i18n.t('profiles.edit')"
+                    tooltipPosition="bottom"
+                    appendTo="body"
+                    (onClick)="openEditProfile(row)"
+                    [attr.aria-label]="i18n.t('profiles.edit')"
+                  ></p-button>
+                  @if (showCancelBackup(row.id)) {
+                    <p-button
+                      type="button"
+                      icon="pi pi-times"
+                      severity="danger"
+                      size="small"
+                      [text]="true"
+                      [rounded]="true"
+                      (onClick)="requestCancelBackup(row)"
+                      [attr.aria-label]="i18n.t('profiles.cancel')"
+                    ></p-button>
+                  } @else {
+                    <p-button
+                      type="button"
+                      icon="pi pi-play"
+                      size="small"
+                      [text]="true"
+                      [rounded]="true"
+                      [pTooltip]="i18n.t('profiles.backupNow')"
+                      tooltipPosition="bottom"
+                      appendTo="body"
+                      (onClick)="runBackup(row)"
+                      [attr.aria-label]="i18n.t('profiles.backupNow')"
+                    ></p-button>
+                  }
+                </div>
+              </td>
+            </tr>
+            @if (backupStatusLineVisible(row.id)) {
+              <tr
+                class="profile-backup-progress-row"
+                [class.profile-row--disabled]="row.enabled === false"
+              >
+                <td colspan="7">
+                  <div class="profile-backup-progress-inner">
+                    <div class="profile-backup-progress-body">
+                      @if (backupLine(row.id)?.isRunning) {
+                        <p-progressBar
+                          [value]="backupProgressPercent(row.id)"
+                          [showValue]="false"
+                          styleClass="profile-backup-progress-bar"
+                        ></p-progressBar>
+                      }
+                      <div class="profile-backup-caption">
+                        @if (backupLine(row.id)?.isRunning) {
+                          <span class="profile-backup-pct">{{ backupProgressPercent(row.id) }}%</span>
+                          <span class="profile-backup-sep"> — </span>
+                        }
+                        <span class="profile-backup-msg">{{ backupLine(row.id)?.lastMessage }}</span>
+                      </div>
+                    </div>
+                    @if (showDismissBackupLogButton(row.id)) {
+                      <p-button
+                        type="button"
+                        icon="pi pi-times"
+                        severity="secondary"
+                        [text]="true"
+                        [rounded]="true"
+                        class="profile-backup-dismiss"
+                        (onClick)="dismissBackupLogRow(row.id)"
+                        [attr.aria-label]="i18n.t('profiles.dismissBackupLog')"
+                      ></p-button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </ng-container>
+        </ng-template>
+      </p-table>
+    } @else {
+      <p>{{ i18n.t('profiles.loading') }}</p>
+    }
+  </p-card>
+</div>
+

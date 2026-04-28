@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/.angular/
+**/dist/
+**/.git/
+**/.vs/
+**/*.user
+**/SysTrayGitBackupper.Tests/
+**/NAN.GitBackupper.Api.Tests/
+**/NAN.GitBackupper.Core.Tests/

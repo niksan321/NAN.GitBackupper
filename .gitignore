@@ -1,0 +1,22 @@
+################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+**/.vs/
+**/bin/
+**/obj/
+
+# Node / Angular
+**/node_modules/
+
+# Сборка: скомпилированный JS (Angular CLI, tsc)
+dist/
+**/dist/
+out-tsc/
+**/out-tsc/
+.angular/
+
+# Локальные данные API (PAT и т.д.)
+/Src/NAN.GitBackupper.Api/data/
+/artifacts/
+**/gitbackupper.design.db

@@ -1,0 +1,213 @@
+<div class="page">
+  @if (draftProfile) {
+    <p-card class="profile-edit-card">
+      <ng-template pTemplate="header">
+        <div class="profile-edit-header">
+          <p-button
+            type="button"
+            icon="pi pi-arrow-left"
+            [rounded]="true"
+            severity="secondary"
+            [text]="true"
+            [disabled]="savingProfile"
+            [attr.aria-label]="i18n.t('profiles.backAria')"
+            [attr.title]="i18n.t('profiles.backAria')"
+            (onClick)="back()"
+          ></p-button>
+          <span class="profile-edit-title">
+            {{ isNew ? i18n.t('profiles.dialogNew') : i18n.t('profiles.dialogEdit') }}
+          </span>
+        </div>
+      </ng-template>
+
+      <div class="form-grid">
+        <div class="field field-span row">
+          <p-checkbox [(ngModel)]="draftProfile.enabled" [binary]="true" inputId="pf-enabled"></p-checkbox>
+          <label for="pf-enabled">{{ i18n.t('profiles.enabled') }}</label>
+        </div>
+        <label class="field">
+          <span>{{ i18n.t('profiles.fieldName') }}</span>
+          <input type="text" pInputText [(ngModel)]="draftProfile.name" class="w-full" />
+        </label>
+        <label class="field">
+          <span>{{ i18n.t('profiles.fieldProvider') }}</span>
+          <p-select
+            [options]="providerSelectOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="draftProfile.provider"
+            [placeholder]="i18n.t('profiles.placeholderProvider')"
+            class="w-full"
+          ></p-select>
+        </label>
+        <label class="field">
+          <span>{{ i18n.t('profiles.fieldApiKey') }}</span>
+          <div class="profile-api-key-row">
+            <input
+              type="password"
+              pInputText
+              [(ngModel)]="draftProfile.apiKey"
+              class="profile-api-key-input"
+              autocomplete="off"
+            />
+            <p-button
+              type="button"
+              label="?"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              (onClick)="apiKeyHelpDialogVisible = true"
+              [attr.aria-label]="i18n.t('profiles.apiKeyHelpButtonAria')"
+              [attr.title]="i18n.t('profiles.apiKeyHelpButtonAria')"
+            ></p-button>
+          </div>
+        </label>
+        @if (providerNeedsUsername(draftProfile.provider)) {
+          <label class="field">
+            <span>{{ i18n.t('profiles.fieldUsername') }}</span>
+            <input type="text" pInputText [(ngModel)]="draftProfile.providerUserName" class="w-full" />
+          </label>
+        }
+        @if (providerNeedsGitLabBaseUrl(draftProfile.provider)) {
+          <label class="field">
+            <span>{{ i18n.t('profiles.fieldGitLabInstanceUrl') }}</span>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="draftProfile.gitLabBaseUrl"
+              class="w-full"
+              placeholder="https://gitlab.example.com"
+            />
+          </label>
+        }
+        <div class="field field-span subhead">{{ i18n.t('profiles.backupInterval') }}</div>
+        <label class="field">
+          <span>{{ i18n.t('profiles.value') }}</span>
+          <p-inputNumber
+            [(ngModel)]="draftProfile.backupInterval.value"
+            [min]="1"
+            [useGrouping]="false"
+            class="w-full"
+          ></p-inputNumber>
+        </label>
+        <label class="field">
+          <span>{{ i18n.t('profiles.unit') }}</span>
+          <p-select
+            [options]="periodSelectOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="draftProfile.backupInterval.type"
+            class="w-full"
+          ></p-select>
+        </label>
+        <div class="field field-span subhead">{{ i18n.t('profiles.operationTimeout') }}</div>
+        <label class="field field-span">
+          <span>{{ i18n.t('profiles.operationTimeoutHint') }}</span>
+          <p-datepicker
+            [(ngModel)]="operationTimeoutPickDate"
+            [timeOnly]="true"
+            hourFormat="24"
+            [showSeconds]="true"
+            [showClear]="false"
+            class="w-full"
+            (ngModelChange)="onOperationTimeoutPickChange($event)"
+            [attr.aria-label]="i18n.t('profiles.operationTimeout')"
+          ></p-datepicker>
+        </label>
+        <label class="field field-span profile-field-parallelism">
+          <span class="profile-parallelism-label"
+            >{{ i18n.t('profiles.parallelism') }}
+            <span class="profile-parallelism-value"
+              >({{ draftProfile.repositoryBackupParallelism }} / {{ maxRepoParallelism() }})</span
+            ></span
+          >
+          <p-slider
+            [(ngModel)]="draftProfile.repositoryBackupParallelism"
+            [min]="1"
+            [max]="maxRepoParallelism()"
+            [step]="1"
+            class="profile-parallelism-slider w-full"
+          ></p-slider>
+        </label>
+        <label class="field">
+          <span>{{ i18n.t('profiles.zipCompression') }}</span>
+          <p-select
+            [options]="zipCompressionOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="draftProfile.zipCompression"
+            class="w-full"
+          ></p-select>
+        </label>
+        <div class="field field-span row">
+          <p-checkbox
+            [(ngModel)]="draftProfile.keepArchivesUntilDiskLimit"
+            [binary]="true"
+            inputId="pf-keep-until-disk-limit"
+          ></p-checkbox>
+          <label for="pf-keep-until-disk-limit">{{ i18n.t('profiles.keepUntilDiskLimit') }}</label>
+        </div>
+        @if (!draftProfile.keepArchivesUntilDiskLimit) {
+          <label class="field">
+            <span>{{ i18n.t('profiles.zipArchivesToKeep') }}</span>
+            <p-inputNumber
+              [(ngModel)]="draftProfile.zipArchivesToKeep"
+              [min]="1"
+              [useGrouping]="false"
+              class="w-full"
+            ></p-inputNumber>
+          </label>
+        }
+      </div>
+
+      @if (formError) {
+        <p class="error dialog-error">{{ formError }}</p>
+      }
+
+      <div class="profile-edit-footer">
+        <p-button
+          [label]="i18n.t('profiles.btnCancel')"
+          severity="secondary"
+          (onClick)="back()"
+          [disabled]="savingProfile"
+        ></p-button>
+        <p-button
+          [label]="i18n.t('profiles.btnSave')"
+          (onClick)="saveProfile()"
+          [loading]="savingProfile"
+          [disabled]="savingProfile"
+        ></p-button>
+      </div>
+    </p-card>
+
+    <p-dialog
+      [header]="i18n.t('profiles.apiKeyHelpTitle')"
+      [(visible)]="apiKeyHelpDialogVisible"
+      [modal]="true"
+      [style]="{ width: 'min(28rem, 94vw)' }"
+      [contentStyle]="{ 'max-height': '70vh', overflow: 'auto' }"
+    >
+      <p class="api-key-help-intro">{{ i18n.t('profiles.apiKeyHelp.intro') }}</p>
+      <ol class="api-key-help-steps">
+        @for (step of apiKeyHelpSteps(draftProfile.provider); track step.headingKey) {
+          <li class="api-key-help-step">
+            <strong class="api-key-help-step-title">{{ i18n.t(step.headingKey) }}</strong>
+            <p class="api-key-help-step-body">{{ i18n.t(step.bodyKey) }}</p>
+            @if (step.url && step.linkLabelKey) {
+              <a class="api-key-help-link" [href]="step.url" target="_blank" rel="noopener noreferrer">{{
+                i18n.t(step.linkLabelKey)
+              }}</a>
+            }
+          </li>
+        }
+      </ol>
+      <ng-template pTemplate="footer">
+        <p-button
+          [label]="i18n.t('profiles.btnCancel')"
+          severity="secondary"
+          (onClick)="apiKeyHelpDialogVisible = false"
+        ></p-button>
+      </ng-template>
+    </p-dialog>
+  }
+</div>

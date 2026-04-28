@@ -1,0 +1,94 @@
+<div class="layout-root">
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-brand-orbit" [class.topbar-brand-orbit--active]="schedulerRunning">
+        <span class="topbar-brand-comet-track" aria-hidden="true">
+          <span class="topbar-brand-comet"></span>
+        </span>
+        <span class="topbar-brand">{{ i18n.t('appName') }}</span>
+      </span>
+      <p-button
+        type="button"
+        [icon]="schedulerRunning ? 'pi pi-stop' : 'pi pi-play'"
+        [styleClass]="
+          schedulerRunning ? 'topbar-scheduler-btn topbar-scheduler-btn--stop' : 'topbar-scheduler-btn'
+        "
+        [text]="true"
+        [rounded]="true"
+        [pTooltip]="schedulerRunning ? i18n.t('profiles.stopSchedule') : i18n.t('profiles.startSchedule')"
+        tooltipPosition="bottom"
+        appendTo="body"
+        (onClick)="toggleScheduler()"
+        [attr.aria-label]="
+          schedulerRunning ? i18n.t('profiles.schedulerStopAria') : i18n.t('profiles.startSchedule')
+        "
+      ></p-button>
+    </div>
+    <div class="topbar-center">{{ pageTitleText() }}</div>
+    <div class="topbar-right">
+      <p-button
+        type="button"
+        [icon]="i18n.theme() === 'dark' ? 'pi pi-sun' : 'pi pi-moon'"
+        [text]="true"
+        [rounded]="true"
+        [pTooltip]="i18n.theme() === 'dark' ? i18n.t('topbarThemeTooltipLight') : i18n.t('topbarThemeTooltipDark')"
+        tooltipPosition="bottom"
+        appendTo="body"
+        (onClick)="i18n.toggleTheme()"
+        [attr.aria-label]="i18n.theme() === 'dark' ? i18n.t('topbarThemeTooltipLight') : i18n.t('topbarThemeTooltipDark')"
+      ></p-button>
+      <p-button
+        type="button"
+        [label]="i18n.lang() === 'en' ? 'RU' : 'EN'"
+        [text]="true"
+        [rounded]="true"
+        [pTooltip]="i18n.lang() === 'en' ? i18n.t('topbarLangSwitchToRu') : i18n.t('topbarLangSwitchToEn')"
+        tooltipPosition="bottom"
+        appendTo="body"
+        (onClick)="i18n.toggleLang()"
+        [attr.aria-label]="i18n.lang() === 'en' ? i18n.t('topbarLangSwitchToRu') : i18n.t('topbarLangSwitchToEn')"
+      ></p-button>
+    </div>
+  </header>
+
+  <div class="layout-body">
+    <aside class="sidebar" [class.sidebar--collapsed]="isSidebarCollapsed">
+      <div class="sidebar-toggle">
+        <p-button
+          type="button"
+          [icon]="isSidebarCollapsed ? 'pi pi-angle-right' : 'pi pi-angle-left'"
+          [text]="true"
+          [rounded]="true"
+          [pTooltip]="isSidebarCollapsed ? i18n.t('navExpand') : i18n.t('navCollapse')"
+          tooltipPosition="right"
+          appendTo="body"
+          (onClick)="toggleSidebar()"
+          [attr.aria-label]="isSidebarCollapsed ? i18n.t('navExpand') : i18n.t('navCollapse')"
+        ></p-button>
+      </div>
+      <nav class="side-nav">
+        @for (item of navItems; track item.link) {
+          <a
+            [routerLink]="item.link"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.exact }"
+            [pTooltip]="isSidebarCollapsed ? i18n.t(item.labelKey) : ''"
+            tooltipPosition="right"
+            appendTo="body"
+            [attr.aria-label]="i18n.t(item.labelKey)"
+          >
+            <i class="side-nav-icon" [class]="item.icon" aria-hidden="true"></i>
+            @if (!isSidebarCollapsed) {
+              <span class="side-nav-text">{{ i18n.t(item.labelKey) }}</span>
+            }
+          </a>
+        }
+      </nav>
+    </aside>
+    <main class="main">
+      <router-outlet />
+    </main>
+  </div>
+  <p-toast position="bottom-right" />
+  <p-confirmDialog />
+</div>

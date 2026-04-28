@@ -1,0 +1,355 @@
+.page {
+  padding: 1rem;
+  margin: 0 auto;
+}
+
+.path {
+  max-width: 24rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .profile-col-numeric {
+  text-align: end;
+  white-space: nowrap;
+}
+
+/* Компактная таблица профилей: меньше вертикальных отступов темы + мелкие кнопки */
+:host ::ng-deep .profiles-card {
+  .p-datatable-table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .profile-col-name {
+    width: 14rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .profile-col-provider {
+    width: 10rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .profile-col-interval {
+    width: 11rem;
+    white-space: nowrap;
+  }
+
+  .profile-col-parallelism {
+    width: 6rem;
+    white-space: nowrap;
+  }
+
+  .profile-col-last-backup-sizes {
+    width: 9.5rem;
+    white-space: nowrap;
+  }
+
+  .profile-col-duration {
+    width: 5.5rem;
+    white-space: nowrap;
+  }
+
+  .profile-col-actions {
+    min-width: 7.5rem;
+    white-space: nowrap;
+  }
+
+  .p-datatable-thead > tr > th {
+    padding-block: 0.375rem;
+    line-height: 1.25;
+  }
+
+  .p-datatable-tbody > tr.profile-row > td {
+    padding-block: 0.375rem;
+    line-height: 1.25;
+    vertical-align: middle;
+  }
+
+  td.actions {
+    white-space: nowrap;
+    min-width: 7.5rem;
+  }
+
+  .actions,
+  .profile-row-actions-inner {
+    flex-wrap: nowrap;
+    gap: 0.125rem;
+  }
+
+  /* Компактные круглые icon-only, чтобы две кнопки стабильно влезали в узкую колонку */
+  .profile-row-actions-inner .p-button {
+    padding: 0;
+    min-width: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.profile-row-actions-inner {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+/*
+ * Скрывать только содержимое ячейки: visibility:hidden на самом td не рисует фон ячейки,
+ * из‑за чего колонка с кнопками оставалась «обычной», пока не наведёшь на строку.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .profile-row .profile-row-actions-inner {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .profile-row:hover .profile-row-actions-inner,
+  .profile-row:focus-within .profile-row-actions-inner {
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
+.profile-backup-progress-row {
+  td {
+    padding-top: 0;
+    padding-bottom: 0.5rem;
+    border-top: none;
+    background: var(--p-content-background, var(--p-surface-ground));
+  }
+}
+
+/* Выключенный профиль — одна переменная на строку, явно все td (включая колонку с кнопками) */
+:host ::ng-deep tr.profile-row.profile-row--disabled {
+  --gb-profile-disabled-bg: color-mix(
+    in srgb,
+    var(--p-content-background, var(--p-surface-ground)) 82%,
+    var(--p-text-muted-color) 18%
+  );
+}
+
+:host ::ng-deep tr.profile-row.profile-row--disabled > td,
+:host ::ng-deep tr.profile-row.profile-row--disabled > td:last-child {
+  color: var(--p-text-muted-color) !important;
+  background-color: var(--gb-profile-disabled-bg) !important;
+  background-image: none !important;
+  border-color: color-mix(
+    in srgb,
+    var(--p-content-border-color, transparent) 70%,
+    transparent
+  ) !important;
+}
+
+:host ::ng-deep tr.profile-backup-progress-row.profile-row--disabled {
+  --gb-profile-disabled-bg: color-mix(
+    in srgb,
+    var(--p-content-background, var(--p-surface-ground)) 82%,
+    var(--p-text-muted-color) 18%
+  );
+}
+
+:host ::ng-deep tr.profile-backup-progress-row.profile-row--disabled > td,
+:host ::ng-deep tr.profile-backup-progress-row.profile-row--disabled > td:last-child {
+  color: var(--p-text-muted-color) !important;
+  background-color: var(--gb-profile-disabled-bg) !important;
+  background-image: none !important;
+  border-color: color-mix(
+    in srgb,
+    var(--p-content-border-color, transparent) 70%,
+    transparent
+  ) !important;
+}
+
+:host ::ng-deep tr.profile-backup-progress-row.profile-row--disabled .profile-backup-caption {
+  color: var(--p-text-muted-color);
+}
+
+:host ::ng-deep tr.profile-backup-progress-row.profile-row--disabled .profile-backup-pct {
+  color: var(--p-text-muted-color);
+}
+
+.profile-backup-progress-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.2rem 0 0.1rem;
+  min-height: 1.75rem;
+}
+
+.profile-backup-progress-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.profile-backup-dismiss {
+  flex: 0 0 auto;
+  margin-top: -0.15rem;
+}
+
+.profile-backup-caption {
+  margin-top: 0.2rem;
+  line-height: 1.3;
+  color: var(--p-text-muted-color, var(--p-text-color));
+  word-break: break-word;
+}
+
+.profile-backup-pct {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+.profile-backup-sep {
+  opacity: 0.7;
+}
+
+::ng-deep .profile-backup-progress-bar {
+  height: 1.1rem;
+  border-radius: var(--p-border-radius, 6px);
+}
+
+.profiles-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.4rem;
+}
+
+:host ::ng-deep .profiles-card .p-card-header {
+  padding: 1rem 1.25rem 0.75rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field-span {
+  grid-column: 1 / -1;
+}
+
+.field.subhead {
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.field.row {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-field-parallelism .profile-parallelism-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.profile-field-parallelism .profile-parallelism-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--p-text-muted-color, inherit);
+  font-weight: 500;
+}
+
+:host ::ng-deep .profile-parallelism-slider.p-slider {
+  width: 100%;
+}
+
+.profile-field-disk-limit .profile-disk-limit-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.profile-field-disk-limit .profile-disk-limit-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--p-text-muted-color, inherit);
+  font-weight: 500;
+}
+
+:host ::ng-deep .profile-disk-limit-slider.p-slider {
+  width: 100%;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.dialog-error {
+  margin-top: 0.75rem;
+}
+
+.profile-api-key-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.profile-api-key-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.api-key-help-intro {
+  margin: 0 0 0.65rem;
+  line-height: 1.45;
+}
+
+.api-key-help-steps {
+  margin: 0;
+  padding-left: 1.35rem;
+  line-height: 1.45;
+}
+
+.api-key-help-step {
+  margin-bottom: 0.85rem;
+}
+
+.api-key-help-step:last-child {
+  margin-bottom: 0;
+}
+
+.api-key-help-step-title {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.api-key-help-step-body {
+  margin: 0 0 0.5rem;
+}
+
+.api-key-help-link {
+  color: var(--p-primary-color, inherit);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.api-key-help-link:hover {
+  text-decoration-thickness: 2px;
+}

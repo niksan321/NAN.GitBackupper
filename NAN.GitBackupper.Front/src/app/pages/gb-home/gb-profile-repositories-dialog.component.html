@@ -1,0 +1,189 @@
+@if (working) {
+  <p-card class="repos-card">
+    <ng-template pTemplate="header">
+      <div class="repos-page-header">
+        <p-button
+          type="button"
+          icon="pi pi-arrow-left"
+          [rounded]="true"
+          severity="secondary"
+          [text]="true"
+          [disabled]="saving"
+          [attr.aria-label]="i18n.t('repos.backAria')"
+          [attr.title]="i18n.t('repos.backAria')"
+          (onClick)="back()"
+        ></p-button>
+        @if (syncInProgress) {
+          <span class="repos-sync-hint repos-sync-hint--pulse">{{ i18n.t('repos.syncInProgress') }}</span>
+        }
+      </div>
+    </ng-template>
+
+    @if (listLoading) {
+      <div class="repos-loading">
+        <p-progressSpinner strokeWidth="4" />
+        <span>{{ i18n.t('repos.loading') }}</span>
+      </div>
+    } @else {
+      <div class="repos-toolbar">
+        <p-select
+          [options]="selectionModeOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="working.repositoryBackupSelectionMode"
+          (ngModelChange)="onSelectionModeChange($event)"
+          [disabled]="saving || listLoading"
+          class="repos-mode-select"
+        ></p-select>
+        <label class="repos-search">
+          <span class="repos-search-label">{{ i18n.t('repos.searchLabel') }}</span>
+          <span class="repos-search-input-wrap">
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="searchText"
+              class="repos-search-field"
+              (keyup.enter)="applySearch()"
+            />
+            @if (hasSearchText) {
+              <button
+                type="button"
+                class="repos-search-clear"
+                [attr.title]="i18n.t('repos.searchClearTooltip')"
+                (click)="clearSearch()"
+              >
+                <i class="pi pi-times"></i>
+              </button>
+            }
+          </span>
+          <p-button
+            type="button"
+            icon="pi pi-search"
+            [rounded]="true"
+            severity="secondary"
+            [attr.title]="i18n.t('repos.searchApplyTooltip')"
+            (onClick)="applySearch()"
+          ></p-button>
+        </label>
+        <label class="repos-filter-selected">
+          <p-checkbox
+            [(ngModel)]="working.showOnlySelectedRepositories"
+            [binary]="true"
+            inputId="repos-only-selected"
+          ></p-checkbox>
+          <span [attr.title]="i18n.t('repos.showOnlySelectedTooltip')">{{
+            i18n.t('repos.showOnlySelected')
+          }}</span>
+        </label>
+      </div>
+
+      <p-table
+        [value]="tableRows()"
+        [tableStyle]="{ 'min-width': '100%' }"
+        styleClass="repos-table"
+        [customSort]="true"
+        [sortField]="reposSortField ?? undefined"
+        [sortOrder]="reposSortField ? reposSortOrder : 0"
+        [(first)]="reposTableFirst"
+        [resetPageOnSort]="true"
+        (onSort)="onReposTableSort($event)"
+        [paginator]="true"
+        [rows]="20"
+        [rowsPerPageOptions]="[20, 50, 100]"
+        [showCurrentPageReport]="true"
+        [currentPageReportTemplate]="i18n.t('table.pageReport')"
+        paginatorDropdownAppendTo="body"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="repos-col-check">
+              <button
+                type="button"
+                class="repos-select-all-btn"
+                [disabled]="!selectAllCheckboxEnabled"
+                [attr.title]="i18n.t('repos.selectAllTooltip')"
+                (click)="onSelectAllHeaderClick()"
+              >
+                @if (selectAllVisibleState() === true) {
+                  <i class="pi pi-check repos-select-all-icon"></i>
+                } @else if (selectAllVisibleState() === null) {
+                  <i class="pi pi-minus repos-select-all-icon"></i>
+                } @else {
+                  <span class="repos-select-all-icon repos-select-all-empty"></span>
+                }
+                <span>{{ i18n.t('repos.selectAll') }}</span>
+              </button>
+            </th>
+            <th pSortableColumn="displayKey">
+              {{ i18n.t('repos.colKey') }}
+              @if (reposSortField === 'displayKey') {
+                <p-sortIcon field="displayKey" />
+              }
+            </th>
+            <th pSortableColumn="httpsCloneUrl">
+              {{ i18n.t('repos.colUrl') }}
+              @if (reposSortField === 'httpsCloneUrl') {
+                <p-sortIcon field="httpsCloneUrl" />
+              }
+            </th>
+            <th pSortableColumn="size">
+              {{ i18n.t('repos.colSize') }}
+              @if (reposSortField === 'size') {
+                <p-sortIcon field="size" />
+              }
+            </th>
+            <th pSortableColumn="branch" class="repos-col-branch">
+              {{ i18n.t('repos.colBranch') }}
+              @if (reposSortField === 'branch') {
+                <p-sortIcon field="branch" />
+              }
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-r>
+          <tr>
+            <td class="repos-col-check">
+              <p-checkbox
+                [binary]="true"
+                [ngModel]="isRowIncluded(r)"
+                (ngModelChange)="setRowIncluded(r, $event)"
+                [disabled]="!rowCheckboxEnabled(r)"
+                [attr.title]="i18n.t('repos.includeTooltip')"
+              ></p-checkbox>
+            </td>
+            <td class="repos-cell-ellipsis">{{ r.displayKey }}</td>
+            <td class="repos-cell-ellipsis" [attr.title]="r.httpsCloneUrl">{{ r.httpsCloneUrl }}</td>
+            <td class="repos-cell-ellipsis" [attr.title]="i18n.t('repos.sizePendingTooltip')">
+              {{ sizeDisplay(r) }}
+            </td>
+            <td class="repos-col-branch">
+              <p-select
+                [options]="getBranchOptions(r)"
+                [ngModel]="getBranchValue(r)"
+                (ngModelChange)="setBranchValue(r, $event)"
+                (onShow)="onBranchPanelShow(r)"
+                [loading]="!!branchLoading[r.displayKey]"
+                class="repos-branch-select w-full"
+              ></p-select>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+
+    <div class="repos-footer">
+      <p-button
+        [label]="i18n.t('profiles.btnCancel')"
+        severity="secondary"
+        (onClick)="cancel()"
+        [disabled]="saving"
+      ></p-button>
+      <p-button
+        [label]="i18n.t('repos.btnConfirm')"
+        (onClick)="confirm()"
+        [loading]="saving"
+        [disabled]="saving || listLoading"
+      ></p-button>
+    </div>
+  </p-card>
+}

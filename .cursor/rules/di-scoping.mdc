@@ -1,0 +1,34 @@
+---
+description: Архитектура DI и управление скоупами в проекте
+alwaysApply: true
+---
+
+# DI и управление скоупами
+
+Проект использует **Prism.DryIoc 9** для Dependency Injection.
+
+## Амбиентный скоуп через AsyncExecutionFlowScopeContext
+
+Контейнер DryIoc создаётся с `AsyncExecutionFlowScopeContext` (см. `App.CreateContainerExtension()`).
+Это делает скоуп амбиентным — любой `Container.Resolve<>()` автоматически находит текущий скоуп, даже если вызов идёт из корневого контейнера (например, через Prism'овский `ViewModelLocator`).
+
+## Жизненный цикл скоупа
+
+Скоуп привязан к окну приложения:
+
+- **Создание**: при показе окна (`App.OnInitialized()` и `TrayService.Show()`) вызывается `Container.CreateScope()` с `IsAttached = true`.
+- **Уничтожение**: при скрытии окна (`TrayService.Hide()`) текущий скоуп отсоединяется (`IsAttached = false`), окно закрывается, регионы очищаются.
+- **Пересоздание**: при повторном показе окна из трея создаётся новый скоуп — все Scoped-сервисы получают свежие экземпляры.
+
+## Правила регистрации сервисов
+
+- **Singleton** (`RegisterSingleton`): сервисы, живущие всё время работы приложения (настройки, фоновые сервисы, трей). Singleton **не должен** зависеть от Scoped-сервиса через конструктор — это вызовет `DependencyHasShorterReuseLifespan`.
+- **Scoped** (`RegisterScoped`): сервисы, привязанные к окну — `IMapper`, вотчеры, `MenuService`, `WindowManager`. Пересоздаются при каждом показе окна.
+- **Transient** (`Register`): ViewModels и задачи, создаваемые при каждом запросе.
+
+## Важно
+
+- `IMapper` — **Scoped**. Нельзя инжектить его в Singleton-сервисы.
+- `IServiceProvider` — **Singleton**. Обёртка над корневым `IContainerProvider`, при резолве использует амбиентный скоуп благодаря `AsyncExecutionFlowScopeContext`. Безопасно инжектить в Singleton-сервисы.
+- Prism'овский `ViewModelLocator` резолвит ViewModel'ы из корневого контейнера, но благодаря `AsyncExecutionFlowScopeContext` амбиентный скоуп доступен автоматически.
+- `BaseViewModel.KeepAlive` возвращает `Container.CurrentScope.IsAttached` — это управляет тем, уничтожаются ли View при навигации.
