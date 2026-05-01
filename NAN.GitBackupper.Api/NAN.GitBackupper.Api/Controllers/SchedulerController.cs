@@ -5,9 +5,7 @@ namespace NAN.GitBackupper.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class SchedulerController(
-    GitSchedulerCoordinator coordinator,
-    SchedulerState schedulerState) : ControllerBase
+public sealed class SchedulerController(GitSchedulerCoordinator coordinator, SchedulerState schedulerState) : ControllerBase
 {
     [HttpGet("status")]
     public ActionResult<SchedulerStatusDto> Status() =>

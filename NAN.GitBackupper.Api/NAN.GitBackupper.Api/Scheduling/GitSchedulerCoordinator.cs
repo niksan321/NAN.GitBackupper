@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Options;
-using NAN.GitBackupper.Api.Options;
-using NAN.GitBackupper.Api.Persistence;
 using NAN.GitBackupper.Api.Models;
 using NAN.GitBackupper.Api.Models.Enums;
+using NAN.GitBackupper.Api.Options;
+using NAN.GitBackupper.Api.Persistence;
 using Quartz;
 using Quartz.Impl.Matchers;
 

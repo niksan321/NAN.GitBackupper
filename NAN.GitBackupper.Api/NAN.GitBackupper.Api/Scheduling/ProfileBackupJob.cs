@@ -1,10 +1,9 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Options;
+using NAN.GitBackupper.Api.Localization;
 using NAN.GitBackupper.Api.Options;
 using NAN.GitBackupper.Api.Persistence;
 using NAN.GitBackupper.Api.Services;
-using NAN.GitBackupper.Api.Localization;
-using NAN.GitBackupper.Api.Models;
 using NAN.GitBackupper.Api.Services.Backup;
 using Quartz;
 
@@ -156,6 +155,7 @@ public sealed class ProfileBackupJob(
             .ForJob(context.JobDetail.Key)
             .StartAt(DateTimeOffset.UtcNow.Add(interval))
             .Build();
+
         await sched.ScheduleJob(trigger, ct);
     }
 }

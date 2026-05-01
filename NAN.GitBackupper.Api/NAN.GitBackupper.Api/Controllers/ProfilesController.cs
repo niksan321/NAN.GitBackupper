@@ -6,12 +6,12 @@ using Microsoft.Extensions.Options;
 using NAN.Git;
 using NAN.Git.Models;
 using NAN.GitBackupper.Api.Database;
+using NAN.GitBackupper.Api.Localization;
+using NAN.GitBackupper.Api.Models;
 using NAN.GitBackupper.Api.Options;
 using NAN.GitBackupper.Api.Persistence;
 using NAN.GitBackupper.Api.Scheduling;
 using NAN.GitBackupper.Api.Services;
-using NAN.GitBackupper.Api.Localization;
-using NAN.GitBackupper.Api.Models;
 using NAN.GitBackupper.Api.Services.Backup;
 
 namespace NAN.GitBackupper.Api.Controllers;
@@ -32,8 +32,7 @@ public sealed class ProfilesController(
     ILogger<ProfilesController> logger) : ControllerBase
 {
     [HttpPost("{id:guid}/repositories/refresh")]
-    public async Task<ActionResult<IReadOnlyList<GitRepositoryDescriptor>>> RefreshRepositories(Guid id,
-        CancellationToken ct)
+    public async Task<ActionResult<IReadOnlyList<GitRepositoryDescriptor>>> RefreshRepositories(Guid id, CancellationToken ct)
     {
         var settings = await settingsStore.LoadAsync(ct);
         var profile = settings.TargetItems?.FirstOrDefault(t => t.Id == id);
@@ -76,8 +75,7 @@ public sealed class ProfilesController(
     }
 
     [HttpGet("{id:guid}/repositories")]
-    public async Task<ActionResult<IReadOnlyList<GitRepositoryDescriptor>>> ListRepositories(Guid id,
-        CancellationToken ct)
+    public async Task<ActionResult<IReadOnlyList<GitRepositoryDescriptor>>> ListRepositories(Guid id, CancellationToken ct)
     {
         var settings = await settingsStore.LoadAsync(ct);
         var profile = settings.TargetItems?.FirstOrDefault(t => t.Id == id);
@@ -104,9 +102,7 @@ public sealed class ProfilesController(
     }
 
     [HttpPost("{id:guid}/repositories/branches")]
-    public async Task<ActionResult<IReadOnlyList<string>>> ListBranches(Guid id,
-        [FromBody] GitRepositoryDescriptor repository,
-        CancellationToken ct)
+    public async Task<ActionResult<IReadOnlyList<string>>> ListBranches(Guid id, [FromBody] GitRepositoryDescriptor repository, CancellationToken ct)
     {
         if (repository == null || string.IsNullOrWhiteSpace(repository.DisplayKey))
             return BadRequest();
@@ -163,8 +159,7 @@ public sealed class ProfilesController(
         return Accepted();
     }
 
-    private async Task RunBackupWorkAsync(Guid id, BackupProfileModel profile, SettingsModel settings,
-        IDisposable lockReleaser, CancellationToken runCt)
+    private async Task RunBackupWorkAsync(Guid id, BackupProfileModel profile, SettingsModel settings, IDisposable lockReleaser, CancellationToken runCt)
     {
         using (lockReleaser)
         {
@@ -374,8 +369,7 @@ public sealed class ProfilesController(
     }
 
     [HttpGet("{id:guid}/backup-archives/download")]
-    public async Task<IActionResult> DownloadBackupArchive(Guid id, [FromQuery] string fileName,
-        CancellationToken ct)
+    public async Task<IActionResult> DownloadBackupArchive(Guid id, [FromQuery] string fileName, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(fileName) || fileName != Path.GetFileName(fileName))
             return BadRequest();
@@ -407,5 +401,4 @@ public sealed class ProfilesController(
 
         return PhysicalFile(fullPath, "application/zip", fileName);
     }
-
 }

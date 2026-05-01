@@ -74,5 +74,4 @@ export class AppI18nService {
     }
     return 'dark';
   }
-
 }
