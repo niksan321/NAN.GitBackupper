@@ -39,9 +39,6 @@ public sealed class ProfilesController(
         if (profile == null)
             return NotFound();
 
-        if (!ProfileBackupRootHelper.IsRootConfigured(optionsAccessor.Value))
-            return Problem(detail: "Укажите непустой GitBackupper:BackupRootPath в appsettings.json.", statusCode: 400);
-
         ProfileBackupRootHelper.ApplyConfiguredRoot(profile, optionsAccessor.Value);
 
         var gitTarget = profile.AsGitTarget();
@@ -63,8 +60,7 @@ public sealed class ProfilesController(
             return NotFound();
 
         var model = BackupProfileMapper.ToModel(entity);
-        ProfileRepositorySelectionPruner.PruneToKnownRepositories(model,
-            repos.Select(r => r.DisplayKey).ToList());
+        ProfileRepositorySelectionPruner.PruneToKnownRepositories(model, [.. repos.Select(r => r.DisplayKey)]);
 
         BackupProfileMapper.UpdateEntity(entity, model);
         entity.CachedRepositoriesJson = JsonSerializer.Serialize(repos, RepositoryCacheSerialization.JsonOptions);
@@ -284,7 +280,7 @@ public sealed class ProfilesController(
             var total = drive.TotalSize;
             var free = drive.TotalFreeSpace;
             var used = total - free;
-            var usedPercent = (int)Math.Round((double)used * 100d / total, MidpointRounding.AwayFromZero);
+            var usedPercent = (int)Math.Round(used * 100d / total, MidpointRounding.AwayFromZero);
             if (usedPercent < 0) usedPercent = 0;
             if (usedPercent > 100) usedPercent = 100;
 
@@ -305,15 +301,12 @@ public sealed class ProfilesController(
 
     [HttpGet("{id:guid}/backup-archives")]
     public async Task<ActionResult<IReadOnlyList<BackupArchiveFileInfo>>> ListBackupArchives(Guid id,
-        [FromQuery] string? sort, [FromQuery] string? order, CancellationToken ct)
+        [FromQuery] string sort, [FromQuery] string order, CancellationToken ct)
     {
         var settings = await settingsStore.LoadAsync(ct);
         var profile = settings.TargetItems?.FirstOrDefault(t => t.Id == id);
         if (profile == null)
             return NotFound();
-
-        if (!ProfileBackupRootHelper.IsRootConfigured(optionsAccessor.Value))
-            return Problem(detail: "Укажите непустой GitBackupper:BackupRootPath в appsettings.json.", statusCode: 400);
 
         ProfileBackupRootHelper.ApplyConfiguredRoot(profile, optionsAccessor.Value);
 
@@ -359,7 +352,7 @@ public sealed class ProfilesController(
                 list.Sort((a, b) => b.ModifiedUtc.CompareTo(a.ModifiedUtc));
             else
                 TableQuerySort.SortBackupArchives(list, sort, order);
-            return Ok((IReadOnlyList<BackupArchiveFileInfo>)list);
+            return Ok(list);
         }
         catch (Exception ex)
         {

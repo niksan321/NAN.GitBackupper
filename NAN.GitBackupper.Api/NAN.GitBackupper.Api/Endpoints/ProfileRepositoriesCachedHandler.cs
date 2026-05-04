@@ -22,8 +22,8 @@ public static class ProfileRepositoriesCachedHandler
 
     private static async Task<IResult> HandleGetCachedAsync(
         Guid id,
-        string? sort,
-        string? order,
+        string sort,
+        string order,
         ISettingsStore settingsStore,
         IDbContextFactory<AppDbContext> dbFactory,
         ILoggerFactory loggerFactory,

@@ -75,8 +75,7 @@ public sealed class BackupDirectoryArchiveService(ILogger<BackupDirectoryArchive
 
         var total = indexedFolders.Count;
         var degree = Math.Max(1, maxDegreeOfParallelism);
-        var staging = Path.Combine(Path.GetTempPath(),
-            $"NAN.GitBackupper.pack_{profile.Id:N}_{Guid.NewGuid():N}");
+        var staging = Path.Combine(Path.GetTempPath(), $"NAN.GitBackupper.pack_{profile.Id:N}_{Guid.NewGuid():N}");
 
         try
         {
@@ -177,8 +176,7 @@ public sealed class BackupDirectoryArchiveService(ILogger<BackupDirectoryArchive
         return n < 1 ? 10 : n;
     }
 
-    private static void PruneExcessZipArchives(string archivesDirectory, int maxToKeep, string protectedFileName,
-        CancellationToken ct)
+    private static void PruneExcessZipArchives(string archivesDirectory, int maxToKeep, string protectedFileName, CancellationToken ct)
     {
         if (maxToKeep < 1 || string.IsNullOrEmpty(archivesDirectory) || !Directory.Exists(archivesDirectory))
             return;
@@ -252,8 +250,7 @@ public sealed class BackupDirectoryArchiveService(ILogger<BackupDirectoryArchive
 
             BackupArchiveDurationMeta.TryDeleteForZip(archivesDirectory, name);
             drive = TryResolveDrive(archivesDirectory);
-            if (drive == null || !drive.IsReady)
-                break;
+            if (drive == null || !drive.IsReady) break;
         }
     }
 

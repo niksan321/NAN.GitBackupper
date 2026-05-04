@@ -10,9 +10,6 @@ public static class ProfileBackupRootHelper
         return (options?.BackupRootPath ?? "").Trim();
     }
 
-    public static bool IsRootConfigured(GitBackupperOptions options) =>
-        !string.IsNullOrWhiteSpace(GetConfiguredRoot(options));
-
     public static void ApplyConfiguredRoot(BackupProfileModel profile, GitBackupperOptions options)
     {
         ArgumentNullException.ThrowIfNull(profile);
