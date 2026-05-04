@@ -1,6 +1,4 @@
 using System.IO.Compression;
-using System.Linq;
-using Microsoft.Extensions.Logging;
 using NAN.GitBackupper.Api.Models;
 using NAN.GitBackupper.Api.Models.Enums;
 

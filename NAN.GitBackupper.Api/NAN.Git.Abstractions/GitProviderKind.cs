@@ -1,4 +1,4 @@
-namespace NAN.Git;
+namespace NAN.Git.Abstractions;
 
 public enum GitProviderKind
 {

@@ -1,3 +1,7 @@
+using NAN.Git.Abstractions;
+using NAN.GitBackupper.GitHubProvider;
+using NAN.GitBackupper.GitLabProvider;
+
 namespace NAN.Git;
 
 public sealed class GitProviderClientFactory(IGitLocalizer localizer)

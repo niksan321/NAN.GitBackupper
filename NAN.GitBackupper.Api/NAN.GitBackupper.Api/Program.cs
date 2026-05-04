@@ -1,6 +1,7 @@
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using NAN.Git;
+using NAN.Git.Abstractions;
 using NAN.GitBackupper.Api.Database;
 using NAN.GitBackupper.Api.Endpoints;
 using NAN.GitBackupper.Api.Hosting;

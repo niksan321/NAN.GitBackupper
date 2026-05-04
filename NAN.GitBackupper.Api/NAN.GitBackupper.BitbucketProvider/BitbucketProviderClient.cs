@@ -1,12 +1,11 @@
-using NAN.Git.Models;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using NAN.Git.Abstractions;
 
 namespace NAN.Git;
 
-public sealed class BitbucketProviderClient : IGitProviderClient
+public sealed partial class BitbucketProviderClient : IGitProviderClient
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
@@ -16,8 +15,7 @@ public sealed class BitbucketProviderClient : IGitProviderClient
     public Task<RequestReplay> ValidateAsync(IGitBackupTarget target, CancellationToken ct = default) =>
         ValidateInternalAsync(target, ct);
 
-    private static async Task<RequestReplay> ValidateInternalAsync(IGitBackupTarget target,
-        CancellationToken ct)
+    private static async Task<RequestReplay> ValidateInternalAsync(IGitBackupTarget target, CancellationToken ct)
     {
         try
         {
@@ -27,8 +25,7 @@ public sealed class BitbucketProviderClient : IGitProviderClient
                 return new RequestReplay { IsSended = true, IsSuccess = true, Message = "OK" };
 
             var firstSlug = workspaceSlugs.OrderBy(s => s, StringComparer.OrdinalIgnoreCase).First();
-            var repoListUrl =
-                $"https://api.bitbucket.org/2.0/repositories/{Uri.EscapeDataString(firstSlug)}?role=member&pagelen=1";
+            var repoListUrl = $"https://api.bitbucket.org/2.0/repositories/{Uri.EscapeDataString(firstSlug)}?role=member&pagelen=1";
             using var response = await client.GetAsync(repoListUrl, ct);
             if (response.IsSuccessStatusCode)
                 return new RequestReplay { IsSended = true, IsSuccess = true, Message = response.ReasonPhrase };
@@ -47,8 +44,7 @@ public sealed class BitbucketProviderClient : IGitProviderClient
         }
     }
 
-    public async Task<IReadOnlyList<GitRepositoryDescriptor>> ListRepositoriesAsync(IGitBackupTarget target,
-        CancellationToken ct = default)
+    public async Task<IReadOnlyList<GitRepositoryDescriptor>> ListRepositoriesAsync(IGitBackupTarget target, CancellationToken ct = default)
     {
         using var client = CreateClient(target);
         string userUuid = null;
@@ -67,8 +63,7 @@ public sealed class BitbucketProviderClient : IGitProviderClient
 
         foreach (var slug in workspaceSlugs.OrderBy(s => s, StringComparer.OrdinalIgnoreCase))
         {
-            var nextUrl =
-                $"https://api.bitbucket.org/2.0/repositories/{Uri.EscapeDataString(slug)}?role=member&pagelen=100";
+            var nextUrl = $"https://api.bitbucket.org/2.0/repositories/{Uri.EscapeDataString(slug)}?role=member&pagelen=100";
             while (!string.IsNullOrEmpty(nextUrl))
             {
                 using var response = await client.GetAsync(nextUrl, ct);
@@ -100,6 +95,7 @@ public sealed class BitbucketProviderClient : IGitProviderClient
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync(ct);
             using var doc = JsonDocument.Parse(json);
+
             if (doc.RootElement.TryGetProperty("values", out var values))
             {
                 foreach (var el in values.EnumerateArray())
@@ -122,11 +118,7 @@ public sealed class BitbucketProviderClient : IGitProviderClient
         return slugs.ToList();
     }
 
-    private static void TryAddRepositoryDescriptor(
-        JsonElement el,
-        string userUuid,
-        HashSet<string> seenFullNames,
-        List<GitRepositoryDescriptor> list)
+    private static void TryAddRepositoryDescriptor(JsonElement el, string userUuid, HashSet<string> seenFullNames, List<GitRepositoryDescriptor> list)
     {
         if (!el.TryGetProperty("full_name", out var fullNameEl))
             return;
@@ -135,8 +127,7 @@ public sealed class BitbucketProviderClient : IGitProviderClient
             return;
 
         string ownerUuid = null;
-        if (el.TryGetProperty("owner", out var ownerEl) &&
-            ownerEl.TryGetProperty("uuid", out var ownerUuidEl))
+        if (el.TryGetProperty("owner", out var ownerEl) && ownerEl.TryGetProperty("uuid", out var ownerUuidEl))
         {
             ownerUuid = ownerUuidEl.GetString();
         }
@@ -145,8 +136,7 @@ public sealed class BitbucketProviderClient : IGitProviderClient
                     string.Equals(ownerUuid, userUuid, StringComparison.OrdinalIgnoreCase);
 
         string cloneHttps = null;
-        if (el.TryGetProperty("links", out var links) &&
-            links.TryGetProperty("clone", out var clones))
+        if (el.TryGetProperty("links", out var links) && links.TryGetProperty("clone", out var clones))
         {
             foreach (var c in clones.EnumerateArray())
             {
@@ -183,8 +173,7 @@ public sealed class BitbucketProviderClient : IGitProviderClient
         var repoSlug = repository.DisplayKey[(slash + 1)..];
         using var client = CreateClient(target);
         List<string> names = [];
-        var nextUrl =
-            $"https://api.bitbucket.org/2.0/repositories/{Uri.EscapeDataString(workspace)}/{Uri.EscapeDataString(repoSlug)}/refs/branches?pagelen=100";
+        var nextUrl = $"https://api.bitbucket.org/2.0/repositories/{Uri.EscapeDataString(workspace)}/{Uri.EscapeDataString(repoSlug)}/refs/branches?pagelen=100";
         while (!string.IsNullOrEmpty(nextUrl))
         {
             using var response = await client.GetAsync(nextUrl, ct);
@@ -239,6 +228,4 @@ public sealed class BitbucketProviderClient : IGitProviderClient
         client.Timeout = target.HttpTimeout;
         return client;
     }
-
-    private sealed record BitbucketUserJson([property: JsonPropertyName("uuid")] string Uuid);
 }

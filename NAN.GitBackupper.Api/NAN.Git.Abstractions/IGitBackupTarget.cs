@@ -1,6 +1,4 @@
-using NAN.Git.Models;
-
-namespace NAN.Git;
+namespace NAN.Git.Abstractions;
 
 /// <summary>
 /// Read-only snapshot of backup target data for git and provider API operations.

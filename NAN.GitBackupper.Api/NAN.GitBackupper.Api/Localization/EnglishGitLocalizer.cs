@@ -1,4 +1,4 @@
-using NAN.Git;
+using NAN.Git.Abstractions;
 
 namespace NAN.GitBackupper.Api.Localization;
 

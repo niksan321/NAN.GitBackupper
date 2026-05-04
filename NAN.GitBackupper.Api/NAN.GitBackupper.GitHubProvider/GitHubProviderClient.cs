@@ -1,12 +1,10 @@
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using NAN.Git.Models;
+using NAN.Git.Abstractions;
 
-namespace NAN.Git;
+namespace NAN.GitBackupper.GitHubProvider;
 
-public sealed class GitHubProviderClient : IGitProviderClient
+public sealed partial class GitHubProviderClient : IGitProviderClient
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
@@ -15,15 +13,13 @@ public sealed class GitHubProviderClient : IGitProviderClient
         try
         {
             using var client = CreateClient(target);
-            using var response =
-                await client.GetAsync("https://api.github.com/user/repos?per_page=1&page=1", ct);
-            if (response.IsSuccessStatusCode)
-                return new RequestReplay
-                {
-                    IsSended = true,
-                    IsSuccess = true,
-                    Message = response.ReasonPhrase,
-                };
+            using var response = await client.GetAsync("https://api.github.com/user/repos?per_page=1&page=1", ct);
+            if (response.IsSuccessStatusCode) return new RequestReplay
+            {
+                IsSended = true,
+                IsSuccess = true,
+                Message = response.ReasonPhrase,
+            };
 
             var err = await response.Content.ReadAsStringAsync(ct);
             return new RequestReplay
@@ -39,8 +35,7 @@ public sealed class GitHubProviderClient : IGitProviderClient
         }
     }
 
-    public async Task<IReadOnlyList<GitRepositoryDescriptor>> ListRepositoriesAsync(IGitBackupTarget target,
-        CancellationToken ct = default)
+    public async Task<IReadOnlyList<GitRepositoryDescriptor>> ListRepositoriesAsync(IGitBackupTarget target, CancellationToken ct = default)
     {
         using var client = CreateClient(target);
         string userLogin;
@@ -56,8 +51,7 @@ public sealed class GitHubProviderClient : IGitProviderClient
         var page = 1;
         while (true)
         {
-            using var response =
-                await client.GetAsync($"https://api.github.com/user/repos?per_page=100&page={page}", ct);
+            using var response = await client.GetAsync($"https://api.github.com/user/repos?per_page=100&page={page}", ct);
             response.EnsureSuccessStatusCode();
             await using var stream = await response.Content.ReadAsStreamAsync(ct);
             var batch = await JsonSerializer.DeserializeAsync<GitHubRepoJson[]>(stream, JsonOptions, ct);
@@ -74,25 +68,23 @@ public sealed class GitHubProviderClient : IGitProviderClient
             }
 
             if (batch.Length < 100) break;
-
             page++;
         }
 
         return list;
     }
 
-    public async Task<IReadOnlyList<string>> ListBranchesAsync(IGitBackupTarget target, GitRepositoryDescriptor repository,
-        CancellationToken ct = default)
+    public async Task<IReadOnlyList<string>> ListBranchesAsync(IGitBackupTarget target, GitRepositoryDescriptor repository, CancellationToken ct = default)
     {
         var slash = repository.DisplayKey.IndexOf('/');
-        if (slash <= 0 || slash >= repository.DisplayKey.Length - 1)
-            return [];
+        if (slash <= 0 || slash >= repository.DisplayKey.Length - 1) return [];
 
         var owner = repository.DisplayKey[..slash];
         var repo = repository.DisplayKey[(slash + 1)..];
         using var client = CreateClient(target);
         List<string> names = [];
         var page = 1;
+
         while (true)
         {
             using var response = await client.GetAsync(
@@ -104,13 +96,9 @@ public sealed class GitHubProviderClient : IGitProviderClient
             if (batch == null || batch.Length == 0) break;
 
             foreach (var item in batch)
-            {
-                if (!string.IsNullOrEmpty(item.Name))
-                    names.Add(item.Name);
-            }
+                if (!string.IsNullOrEmpty(item.Name)) names.Add(item.Name);
 
             if (batch.Length < 100) break;
-
             page++;
         }
 
@@ -134,15 +122,4 @@ public sealed class GitHubProviderClient : IGitProviderClient
         client.Timeout = target.HttpTimeout;
         return client;
     }
-
-    private sealed record GitHubUserJson([property: JsonPropertyName("login")] string Login);
-
-    private sealed record GitHubOwnerJson([property: JsonPropertyName("login")] string Login);
-
-    private sealed record GitHubRepoJson([property: JsonPropertyName("full_name")] string FullName,
-        [property: JsonPropertyName("clone_url")] string CloneUrl,
-        [property: JsonPropertyName("default_branch")] string DefaultBranch,
-        [property: JsonPropertyName("owner")] GitHubOwnerJson Owner);
-
-    private sealed record GitHubBranchJson([property: JsonPropertyName("name")] string Name);
 }

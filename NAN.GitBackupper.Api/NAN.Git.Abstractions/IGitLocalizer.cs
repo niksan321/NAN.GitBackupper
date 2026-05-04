@@ -1,4 +1,4 @@
-namespace NAN.Git;
+namespace NAN.Git.Abstractions;
 
 /// <summary>
 /// Localization for git/API messages (implemented by the host app, e.g. Wpf.Translation).

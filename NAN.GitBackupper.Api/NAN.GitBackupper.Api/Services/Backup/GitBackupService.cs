@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using NAN.Git;
-using NAN.Git.Models;
+using NAN.Git.Abstractions;
 using NAN.GitBackupper.Api.Helpers;
 using NAN.GitBackupper.Api.Localization;
 using NAN.GitBackupper.Api.Models;

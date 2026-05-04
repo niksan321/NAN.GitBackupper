@@ -1,9 +1,8 @@
 using System.Linq;
-using NAN.Git;
-using NAN.Git.Models;
 using NAN.GitBackupper.Api.Models;
 using RepoMode = NAN.GitBackupper.Api.Models.Enums.RepositoryBackupSelectionMode;
 using ProvType = NAN.GitBackupper.Api.Models.Enums.GitProviderType;
+using NAN.Git.Abstractions;
 
 namespace NAN.GitBackupper.Api.Services.Backup;
 

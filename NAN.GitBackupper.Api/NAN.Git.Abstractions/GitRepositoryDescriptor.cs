@@ -1,4 +1,4 @@
-namespace NAN.Git.Models;
+namespace NAN.Git.Abstractions;
 
 public sealed record GitRepositoryDescriptor(
     string DisplayKey,

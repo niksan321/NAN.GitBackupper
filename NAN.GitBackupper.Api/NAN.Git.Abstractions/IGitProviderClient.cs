@@ -1,6 +1,4 @@
-using NAN.Git.Models;
-
-namespace NAN.Git;
+namespace NAN.Git.Abstractions;
 
 public interface IGitProviderClient
 {

@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using NAN.Git.Models;
+using NAN.Git.Abstractions;
 using NAN.GitBackupper.Api.Database;
 using NAN.GitBackupper.Api.Persistence;
 using NAN.GitBackupper.Api.Services;

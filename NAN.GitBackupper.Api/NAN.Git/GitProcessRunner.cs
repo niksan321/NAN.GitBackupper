@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using NAN.Git.Abstractions;
 
 namespace NAN.Git;
 

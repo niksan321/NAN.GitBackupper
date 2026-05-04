@@ -1,4 +1,4 @@
-namespace NAN.Git.Models;
+namespace NAN.Git.Abstractions;
 
 public class RequestReplay
 {

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NAN.Git;
-using NAN.Git.Models;
+using NAN.Git.Abstractions;
 using NAN.GitBackupper.Api.Database;
 using NAN.GitBackupper.Api.Localization;
 using NAN.GitBackupper.Api.Models;

@@ -1,6 +1,6 @@
 using System.Linq;
 using NAN.Git;
-using NAN.Git.Models;
+using NAN.Git.Abstractions;
 using NAN.GitBackupper.Core.Helpers;
 using NAN.GitBackupper.Core.Localization;
 using NAN.GitBackupper.Core.Models;

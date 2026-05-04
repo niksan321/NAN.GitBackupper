@@ -1,13 +1,11 @@
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using NAN.Git.Models;
+using NAN.Git.Abstractions;
 
-namespace NAN.Git;
+namespace NAN.GitBackupper.GitLabProvider;
 
 /// <summary>GitLab Cloud, self-hosted, or other GitLab-compatible APIs.</summary>
-public sealed class GitLabCompatibleProviderClient(IGitLocalizer localizer) : IGitProviderClient
+public sealed partial class GitLabCompatibleProviderClient(IGitLocalizer localizer) : IGitProviderClient
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private const string GitLabDefaultBaseUrl = "https://gitlab.com";
@@ -36,8 +34,7 @@ public sealed class GitLabCompatibleProviderClient(IGitLocalizer localizer) : IG
         }
     }
 
-    public async Task<IReadOnlyList<GitRepositoryDescriptor>> ListRepositoriesAsync(IGitBackupTarget target,
-        CancellationToken ct = default)
+    public async Task<IReadOnlyList<GitRepositoryDescriptor>> ListRepositoriesAsync(IGitBackupTarget target, CancellationToken ct = default)
     {
         using var client = CreateClient(target);
         long userId;
@@ -82,8 +79,7 @@ public sealed class GitLabCompatibleProviderClient(IGitLocalizer localizer) : IG
         return list;
     }
 
-    public async Task<IReadOnlyList<string>> ListBranchesAsync(IGitBackupTarget target, GitRepositoryDescriptor repository,
-        CancellationToken ct = default)
+    public async Task<IReadOnlyList<string>> ListBranchesAsync(IGitBackupTarget target, GitRepositoryDescriptor repository, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(repository.DisplayKey))
             return [];
@@ -92,6 +88,7 @@ public sealed class GitLabCompatibleProviderClient(IGitLocalizer localizer) : IG
         var encoded = Uri.EscapeDataString(repository.DisplayKey);
         List<string> names = [];
         var page = 1;
+
         while (true)
         {
             var url = $"{GetApiRoot(target)}/projects/{encoded}/repository/branches?per_page=100&page={page}";
@@ -146,15 +143,4 @@ public sealed class GitLabCompatibleProviderClient(IGitLocalizer localizer) : IG
         => string.IsNullOrWhiteSpace(target.GitLabBaseUrl)
             ? GitLabDefaultBaseUrl
             : target.GitLabBaseUrl.Trim().TrimEnd('/');
-
-    private sealed record GitLabUserJson([property: JsonPropertyName("id")] long Id);
-
-    private sealed record GitLabOwnerJson([property: JsonPropertyName("id")] long Id);
-
-    private sealed record GitLabProjectJson([property: JsonPropertyName("path_with_namespace")] string PathWithNamespace,
-        [property: JsonPropertyName("http_url_to_repo")] string HttpUrlToRepo,
-        [property: JsonPropertyName("default_branch")] string DefaultBranch,
-        [property: JsonPropertyName("owner")] GitLabOwnerJson Owner);
-
-    private sealed record GitLabBranchJson([property: JsonPropertyName("name")] string Name);
 }
