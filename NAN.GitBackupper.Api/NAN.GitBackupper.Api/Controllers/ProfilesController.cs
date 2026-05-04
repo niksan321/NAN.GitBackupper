@@ -78,9 +78,6 @@ public sealed class ProfilesController(
         if (profile == null)
             return NotFound();
 
-        if (!ProfileBackupRootHelper.IsRootConfigured(optionsAccessor.Value))
-            return Problem(detail: "Укажите непустой GitBackupper:BackupRootPath в appsettings.json.", statusCode: 400);
-
         ProfileBackupRootHelper.ApplyConfiguredRoot(profile, optionsAccessor.Value);
 
         var gitTarget = profile.AsGitTarget();
@@ -108,9 +105,6 @@ public sealed class ProfilesController(
         if (profile == null)
             return NotFound();
 
-        if (!ProfileBackupRootHelper.IsRootConfigured(optionsAccessor.Value))
-            return Problem(detail: "Укажите непустой GitBackupper:BackupRootPath в appsettings.json.", statusCode: 400);
-
         ProfileBackupRootHelper.ApplyConfiguredRoot(profile, optionsAccessor.Value);
 
         var gitTarget = profile.AsGitTarget();
@@ -134,9 +128,6 @@ public sealed class ProfilesController(
         var profile = settings.TargetItems?.FirstOrDefault(t => t.Id == id);
         if (profile == null)
             return NotFound();
-
-        if (!ProfileBackupRootHelper.IsRootConfigured(optionsAccessor.Value))
-            return Problem(detail: "Укажите непустой GitBackupper:BackupRootPath в appsettings.json.", statusCode: 400);
 
         ProfileBackupRootHelper.ApplyConfiguredRoot(profile, optionsAccessor.Value);
 
@@ -264,9 +255,6 @@ public sealed class ProfilesController(
         if (profile == null)
             return NotFound();
 
-        if (!ProfileBackupRootHelper.IsRootConfigured(optionsAccessor.Value))
-            return Problem(detail: "Укажите непустой GitBackupper:BackupRootPath в appsettings.json.", statusCode: 400);
-
         ProfileBackupRootHelper.ApplyConfiguredRoot(profile, optionsAccessor.Value);
 
         try
@@ -277,6 +265,7 @@ public sealed class ProfilesController(
             var drive = new DriveInfo(root);
             if (!drive.IsReady || drive.TotalSize <= 0)
                 return Problem(detail: "Диск недоступен.", statusCode: 500);
+
             var total = drive.TotalSize;
             var free = drive.TotalFreeSpace;
             var used = total - free;
@@ -373,9 +362,6 @@ public sealed class ProfilesController(
         var profile = settings.TargetItems?.FirstOrDefault(t => t.Id == id);
         if (profile == null)
             return NotFound();
-
-        if (!ProfileBackupRootHelper.IsRootConfigured(optionsAccessor.Value))
-            return Problem(detail: "Укажите непустой GitBackupper:BackupRootPath в appsettings.json.", statusCode: 400);
 
         ProfileBackupRootHelper.ApplyConfiguredRoot(profile, optionsAccessor.Value);
 
