@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using NAN.GitBackupper.Api.Models;
+using NAN.GitBackupper.Api.Models.Enums;
 using NAN.GitBackupper.Api.Options;
 using NAN.GitBackupper.Api.Persistence;
 using NAN.GitBackupper.Api.Scheduling;
 using NAN.GitBackupper.Api.Services;
-using NAN.GitBackupper.Api.Models;
-using NAN.GitBackupper.Api.Models.Enums;
 
 namespace NAN.GitBackupper.Api.Controllers;
 
@@ -58,8 +58,6 @@ public sealed class SettingsController(
             model = new SettingsModel { TargetItems = [] };
 
         var opt = optionsAccessor.Value;
-        if (!ProfileBackupRootHelper.IsRootConfigured(opt))
-            return Problem(detail: "Укажите непустой GitBackupper:BackupRootPath в appsettings.json.", statusCode: 400);
 
         foreach (var t in model.TargetItems)
         {

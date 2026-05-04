@@ -7,7 +7,6 @@ using NAN.GitBackupper.Api.Database;
 using NAN.GitBackupper.Api.Models;
 using NAN.GitBackupper.Api.Options;
 using NAN.GitBackupper.Api.Services;
-using NAN.GitBackupper.Api.Services.Backup;
 
 namespace NAN.GitBackupper.Api.Persistence;
 
@@ -93,17 +92,13 @@ public sealed class CompositeSettingsStore(
             foreach (var profile in settings.TargetItems)
             {
                 profile.ZipAfterBackup = true;
-                var entity = await db.BackupProfiles.FindAsync(new object[] { profile.Id }, ct);
+                var entity = await db.BackupProfiles.FindAsync([profile.Id], ct);
                 if (entity == null)
                 {
-                    if (ProfileBackupRootHelper.IsRootConfigured(opt))
-                        ProfileBackupFolderMigration.TryMoveLegacyNameFolderToId(profile, profile.Name, logger);
                     db.BackupProfiles.Add(BackupProfileMapper.ToEntity(profile));
                 }
                 else
                 {
-                    if (ProfileBackupRootHelper.IsRootConfigured(opt))
-                        ProfileBackupFolderMigration.TryMoveLegacyNameFolderToId(profile, entity.Name, logger);
                     if (profile.LastBackupSelectedTotalBytes == null)
                         profile.LastBackupSelectedTotalBytes = entity.LastBackupSelectedTotalBytes;
                     if (profile.LastBackupZipArchiveBytes == null)

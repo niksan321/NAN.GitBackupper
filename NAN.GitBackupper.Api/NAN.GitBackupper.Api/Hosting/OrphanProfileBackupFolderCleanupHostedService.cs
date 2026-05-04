@@ -15,7 +15,6 @@ public sealed class OrphanProfileBackupFolderCleanupHostedService(
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (!optionsAccessor.Value.OrphanProfileBackupFolderCleanupEnabled) return;
-        if (!ProfileBackupRootHelper.IsRootConfigured(optionsAccessor.Value)) return;
 
         var intervalHrs = Math.Max(1, optionsAccessor.Value.OrphanProfileBackupCleanupIntervalHours);
         var root = ProfileBackupRootHelper.GetConfiguredRoot(optionsAccessor.Value);

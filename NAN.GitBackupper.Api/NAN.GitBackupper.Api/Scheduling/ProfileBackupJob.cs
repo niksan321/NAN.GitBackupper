@@ -50,13 +50,6 @@ public sealed class ProfileBackupJob(
                 if (!profile.Enabled)
                     return;
 
-                if (!ProfileBackupRootHelper.IsRootConfigured(optionsAccessor.Value))
-                {
-                    logger.LogWarning("Scheduled backup skipped: GitBackupper:BackupRootPath is not configured");
-                    statusStore.SetRunning(profileId, false, "Укажите GitBackupper:BackupRootPath в appsettings.json.");
-                    return;
-                }
-
                 ProfileBackupRootHelper.ApplyConfiguredRoot(profile, optionsAccessor.Value);
 
                 await progressLogDismissedStore.SetAsync(profileId, false, context.CancellationToken);
