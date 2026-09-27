@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -13,15 +13,14 @@ import { AppI18nService } from '../i18n/app-i18n.service';
 @Component({
     selector: 'gb-main-layout',
     imports: [
-        CommonModule,
-        RouterOutlet,
-        RouterLink,
-        RouterLinkActive,
-        ButtonModule,
-        ToastModule,
-        TooltipModule,
-        ConfirmDialogModule,
-    ],
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    ButtonModule,
+    ToastModule,
+    TooltipModule,
+    ConfirmDialogModule
+],
     templateUrl: './main-layout.component.html',
     styleUrl: './main-layout.component.scss'
 })

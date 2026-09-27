@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -36,7 +36,6 @@ interface RepoDialogSnapshot {
 @Component({
   selector: 'gb-profile-repositories-dialog',
   imports: [
-    CommonModule,
     FormsModule,
     ButtonModule,
     CardModule,
@@ -44,8 +43,8 @@ interface RepoDialogSnapshot {
     InputTextModule,
     ProgressSpinnerModule,
     SelectModule,
-    TableModule,
-  ],
+    TableModule
+],
   templateUrl: './gb-profile-repositories-dialog.component.html',
   styleUrl: './gb-profile-repositories-dialog.component.scss',
 })

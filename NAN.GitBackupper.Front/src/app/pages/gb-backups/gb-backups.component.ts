@@ -1,4 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
+﻿
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -27,7 +27,7 @@ const storageBackupsProfile = 'gb-backups-profile';
 
 @Component({
   selector: 'gb-backups',
-  imports: [CommonModule, FormsModule, CardModule, TableModule, SelectModule, ButtonModule, TooltipModule],
+  imports: [FormsModule, CardModule, TableModule, SelectModule, ButtonModule, TooltipModule],
   templateUrl: './gb-backups.component.html',
   styleUrl: './gb-backups.component.scss',
 })

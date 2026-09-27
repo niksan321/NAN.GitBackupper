@@ -9,14 +9,14 @@
     "watch": "ng build --watch --configuration development"
   },
   "dependencies": {
-    "@angular/animations": "^19.2.21",
-    "@angular/common": "^19.2.21",
-    "@angular/compiler": "^19.2.21",
-    "@angular/core": "^19.2.21",
-    "@angular/forms": "^19.2.21",
-    "@angular/platform-browser": "^19.2.21",
-    "@angular/platform-browser-dynamic": "^19.2.21",
-    "@angular/router": "^19.2.21",
+    "@angular/animations": "^20.3.32",
+    "@angular/common": "^20.3.32",
+    "@angular/compiler": "^20.3.32",
+    "@angular/core": "^20.3.32",
+    "@angular/forms": "^20.3.32",
+    "@angular/platform-browser": "^20.3.32",
+    "@angular/platform-browser-dynamic": "^20.3.32",
+    "@angular/router": "^20.3.32",
     "@microsoft/signalr": "^10.0.0",
     "@primeng/themes": "^19.1.4",
     "primeicons": "^7.0.0",
@@ -26,9 +26,9 @@
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^19.2.24",
-    "@angular/cli": "^19.2.24",
-    "@angular/compiler-cli": "^19.2.21",
-    "typescript": "~5.5.4"
+    "@angular/build": "^20.3.37",
+    "@angular/cli": "^20.3.37",
+    "@angular/compiler-cli": "^20.3.32",
+    "typescript": "~5.9.3"
   }
 }

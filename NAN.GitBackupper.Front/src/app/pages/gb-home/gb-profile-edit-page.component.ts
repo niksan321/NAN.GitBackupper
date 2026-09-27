@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -35,7 +35,6 @@ interface ApiKeyHelpStep {
 @Component({
   selector: 'gb-profile-edit-page',
   imports: [
-    CommonModule,
     FormsModule,
     ButtonModule,
     CardModule,
@@ -45,8 +44,8 @@ interface ApiKeyHelpStep {
     SelectModule,
     SliderModule,
     DialogModule,
-    DatePicker,
-  ],
+    DatePicker
+],
   templateUrl: './gb-profile-edit-page.component.html',
   styleUrl: './gb-profile-edit-page.component.scss',
 })

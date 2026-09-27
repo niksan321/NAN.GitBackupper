@@ -1,0 +1,15 @@
+{
+  "TargetItems": [],
+  "ProfileBackupStatuses": null,
+  "RunOnStartUp": false,
+  "AutoStartPing": true,
+  "Notify": true,
+  "StartMinimized": true,
+  "ShowDeletePrompt": true,
+  "PlayErrorSound": true,
+  "Language": "en",
+  "TimeToShowPopupSec": 5,
+  "SortingColumn": 2,
+  "SortingDirection": 0,
+  "SchedulerStartupPreference": 2
+}

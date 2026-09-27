@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -29,13 +29,12 @@ import {
 @Component({
     selector: 'gb-home',
     imports: [
-        CommonModule,
-        ButtonModule,
-        TooltipModule,
-        CardModule,
-        TableModule,
-        ProgressBarModule,
-    ],
+    ButtonModule,
+    TooltipModule,
+    CardModule,
+    TableModule,
+    ProgressBarModule
+],
     templateUrl: './gb-home.component.html',
     styleUrl: './gb-home.component.scss'
 })
