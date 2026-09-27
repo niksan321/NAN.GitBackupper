@@ -21,3 +21,5 @@ out-tsc/
 /artifacts/
 **/gitbackupper.design.db
 /NAN.GitBackupper.Api/NAN.GitBackupper.Api/data/gitbackupper.db
+/NAN.GitBackupper.Api/NAN.GitBackupper.Api/data/gitbackupper.db-shm
+/NAN.GitBackupper.Api/NAN.GitBackupper.Api/data/gitbackupper.db-wal
